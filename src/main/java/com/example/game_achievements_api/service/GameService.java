@@ -1,5 +1,6 @@
 package com.example.game_achievements_api.service;
 
+import com.example.game_achievements_api.model.Achievement;
 import com.example.game_achievements_api.model.Game;
 
 import java.util.List;
@@ -17,4 +18,5 @@ public interface GameService {
     public boolean existsById (Long id);
     public Game save (Game game);
     public Optional<Game> findById(Long id);
+
 }

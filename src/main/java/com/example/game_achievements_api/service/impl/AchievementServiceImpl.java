@@ -55,4 +55,14 @@ public class AchievementServiceImpl implements AchievementService {
     public Optional<Achievement> findById(Long id) {
         return achievementRepository.findById(id);
     }
+
+    @Override
+    public Achievement save(Achievement achievement) {
+        return achievementRepository.save(achievement);
+    }
+
+    @Override
+    public List<Achievement> findAllByGame_Id(Long idGame) {
+        return achievementRepository.findAllByGame_Id(idGame);
+    }
 }

@@ -25,4 +25,6 @@ public class Game {
     @Column(nullable = false,  name = "name_game", unique = true)
     private String name;
 
+    // OneToMany
+
 }

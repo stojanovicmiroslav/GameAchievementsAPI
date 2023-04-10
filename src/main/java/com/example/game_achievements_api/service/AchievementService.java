@@ -19,6 +19,8 @@ public interface AchievementService {
     public boolean existsById (Long id);
 
     public Optional<Achievement> findById (Long id);
+    public Achievement save (Achievement achievement);
+    List<Achievement> findAllByGame_Id (Long idGame);
 
 
 }

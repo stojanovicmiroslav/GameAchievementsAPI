@@ -1,11 +1,8 @@
 package com.example.game_achievements_api.controller;
 
+import com.example.game_achievements_api.exceptions.ApiError;
 import com.example.game_achievements_api.model.Achievement;
-import com.example.game_achievements_api.model.AchievementGame;
 import com.example.game_achievements_api.model.Game;
-import com.example.game_achievements_api.repository.AchievementGameRespository;
-import com.example.game_achievements_api.service.AchievementService;
-import com.example.game_achievements_api.service.impl.AchievementGameServiceImpl;
 import com.example.game_achievements_api.service.impl.AchievementServiceImpl;
 import com.example.game_achievements_api.service.impl.GameServiceImpl;
 import jakarta.validation.Valid;
@@ -24,7 +21,12 @@ public class GameController {
 
     private final GameServiceImpl gameService;
     private final AchievementServiceImpl achievementService;
-    private final AchievementGameServiceImpl achievementGameService;
+
+
+
+// games - GET, POST
+// games/id - GET, PUT, DELETE
+
 
     @GetMapping ("/{id}")
     public ResponseEntity<Game> findByID(@PathVariable long id){
@@ -43,39 +45,40 @@ public class GameController {
     }
 
     @PostMapping
-    public  ResponseEntity<Game> addGame(@Valid @RequestBody Game game){
+    public  ResponseEntity<?> addGame(@Valid @RequestBody Game game){ // ovde
         if (gameService.existsByName(game.getName())) {
-            System.out.println("name of the Game alreadyExists");
-            // TODO kako da dodam u exception error ?
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+            return new ResponseEntity<>(new ApiError("name of the Game alreadyExists"), HttpStatus.BAD_REQUEST);
         }
      Game savedGame =  gameService.createGame(game);
         return new ResponseEntity<>(savedGame, HttpStatus.OK);
     }
 
-    @PostMapping("{id}/addAchievement")
-    public  ResponseEntity<AchievementGame> addAchievement(@PathVariable Long id, @RequestParam  Long achievementID){
+
+    @PostMapping("{id}/achievements")
+    public  ResponseEntity<Achievement> addAchievement(@PathVariable Long id, @RequestBody Achievement achievement){
         if (!gameService.existsById(id)) {
             System.out.println("Game does not exist");
             // TODO kako da dodam u exception error ?
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        if (!achievementService.existsById(achievementID)) {
-            System.out.println("Achievement does not exist to be added to the game");
-            // TODO kako da dodam u exception error ?
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
 
-        AchievementGame achievementGame = new AchievementGame();
-        achievementGame.setAchievement(achievementService.findById(achievementID).get());
-        achievementGame.setGame(gameService.findById(id).get());
+        Game gamefound = gameService.getGame(id).get();
 
-        achievementGameService.save(achievementGame);
+        achievement.setGame(gamefound);
 
-        return new ResponseEntity<>(achievementGame, HttpStatus.CREATED);
+        achievementService.save(achievement);
+
+        return new ResponseEntity<>(achievement, HttpStatus.CREATED);
     }
 
+
+    @GetMapping ("{id}/achievements")
+    public ResponseEntity <List<Achievement>> findAllAchievenetsByGame(@PathVariable Long id){
+        List<Achievement> achievementsList = achievementService.findAllByGame_Id(id);
+        return new ResponseEntity<>(achievementsList, HttpStatus.OK);
+    }
 
 
     @PutMapping("/{id}")
@@ -100,6 +103,7 @@ public class GameController {
         Optional<Game> gameoptional = gameService.getGame(id);
         if (gameoptional.isEmpty()){
             // TODO kako da dodam u exception error ?
+            // TODO sta ako izbrisem Game, kako ce da mi bude tabela GameAchievement
             return new ResponseEntity<>( HttpStatus.NOT_FOUND);
         }
         Game game = gameoptional.get();
