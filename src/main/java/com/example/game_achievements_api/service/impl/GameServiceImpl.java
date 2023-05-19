@@ -5,6 +5,7 @@ import com.example.game_achievements_api.repository.GameRepository;
 import com.example.game_achievements_api.service.GameService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.webjars.NotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,8 +27,8 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Optional<Game> getGame(Long id) {
-        return gameRepository.findById(id);
+    public Game getGame(Long id) {
+        return gameRepository.findById(id).orElseThrow(()-> new NotFoundException("Game with not found "));
     }
 
     @Override
@@ -56,7 +57,7 @@ gameRepository.deleteById(id);
     }
 
     @Override
-    public Optional<Game> findById(Long id) {
-        return gameRepository.findById(id);
+    public Game findById(Long id) {
+        return gameRepository.findById(id).orElseThrow(()-> new NotFoundException("Game with not found "));
     }
 }

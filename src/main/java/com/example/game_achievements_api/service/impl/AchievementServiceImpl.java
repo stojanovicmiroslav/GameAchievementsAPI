@@ -5,6 +5,7 @@ import com.example.game_achievements_api.repository.AchievementRepository;
 import com.example.game_achievements_api.service.AchievementService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.webjars.NotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,8 +27,8 @@ public class AchievementServiceImpl implements AchievementService {
     }
 
     @Override
-    public Optional<Achievement> getAchievement(Long id) {
-        return achievementRepository.findById(id);
+    public Achievement getAchievement(Long id) { // u buducnosti da ne koristim vise Optional
+        return achievementRepository.findById(id).orElseThrow(()->new NotFoundException("User not found 1"));
     }
 
     @Override
@@ -52,8 +53,8 @@ public class AchievementServiceImpl implements AchievementService {
     }
 
     @Override
-    public Optional<Achievement> findById(Long id) {
-        return achievementRepository.findById(id);
+    public Achievement findById(Long id) {
+        return achievementRepository.findById(id).orElseThrow(()-> new NotFoundException("User not found 2"));
     }
 
     @Override

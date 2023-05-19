@@ -13,10 +13,3 @@ public class GameAchievementsApiApplication {
 }
 
 
-
-// games - GET, POST
-// games/id - GET, PUT, DELETE
-
-// games/id/achievements - GET, POST
-
-// achievements/id - GET, PUT, DELETE

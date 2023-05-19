@@ -1,14 +1,20 @@
 package com.example.game_achievements_api.controller;
 
 
+import com.example.game_achievements_api.exceptions.CustomExecutionHandler;
 import com.example.game_achievements_api.model.Achievement;
 import com.example.game_achievements_api.model.Game;
 import com.example.game_achievements_api.service.impl.AchievementServiceImpl;
+import com.example.game_achievements_api.service.impl.GameServiceImpl;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.webjars.NotFoundException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,15 +26,13 @@ import java.util.Optional;
 public class AchievementController {
 
 private final AchievementServiceImpl achievementService;
-
+private final GameServiceImpl gameService;
+private final CustomExecutionHandler customExecutionHandler;
 
     @GetMapping("/{id}")
     public ResponseEntity<Achievement> findByID(@PathVariable long id){
-        Optional<Achievement> achievementOptional = achievementService.getAchievement(id);
-        if (achievementOptional.isEmpty()){
-            return new ResponseEntity<>( HttpStatus.NOT_FOUND);
-        }
-        Achievement achievement = achievementOptional.get();
+        Achievement achievement = achievementService.getAchievement(id);
+
         return new ResponseEntity<>(achievement, HttpStatus.OK);
     }
 
@@ -39,42 +43,33 @@ private final AchievementServiceImpl achievementService;
     }
 
 
+    @PutMapping()
+    public  ResponseEntity<?> updateAchievement(@Valid @RequestBody Achievement achievement, HttpServletRequest servletRequest){
+        // HttpServletRequest je inteface koji prestavlja httprequest od klijenta. ovaj objekat daje mogucnost o informacijama o requestu
+        // npr httpmethod url, header, request param body...
 
+        try {
+            Achievement optionalAchievement = achievementService.getAchievement(achievement.getId());
+            Game game = gameService.findById(achievement.getGame().getId());
 
-
-
-    @PutMapping("/{id}")
-    public  ResponseEntity<Achievement> updateAchievement(@PathVariable long id, @Valid @RequestBody Achievement achievement, @RequestParam Game game){
-        Optional<Achievement> optionalAchievement = achievementService.getAchievement(id);
-        if (optionalAchievement.isPresent()) {
-            Achievement achievementFound = optionalAchievement.get();
-            achievementFound.setId(id);
-            achievementFound.setName(achievement.getName());
-            achievementFound.setDisplayOrder(achievement.getDisplayOrder());
-            achievementFound.setGame(game);
-            achievementFound.setIcon(achievement.getIcon());
-            achievementService.update(achievementFound);
-            return new ResponseEntity<>(achievementFound, HttpStatus.OK);
+            achievementService.update(achievement);
+            return new ResponseEntity<>(achievement, HttpStatus.OK);
+        } catch (NotFoundException e) {
+            servletRequest.getServletPath(); // od njega smo uzeli samo path, ostale sve smo uzeli od NotFoundException e
+            return new ResponseEntity<>(customExecutionHandler.notFound(servletRequest.getServletPath(), e.getMessage(), e.getLocalizedMessage() ), HttpStatus.NOT_FOUND);
         }
 
-        System.out.println("Achievement with id: " + id + " not found in database");
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteByID(@PathVariable long id){
-        Optional<Achievement> achievementOptional = achievementService.getAchievement(id);
-        if (achievementOptional.isEmpty()){
-            // TODO kako da dodam u exception error ?
-            return new ResponseEntity<>( HttpStatus.NOT_FOUND);
-        }
-        Achievement achievement = achievementOptional.get();
+        Achievement achievement = achievementService.getAchievement(id);
+//
+
         achievementService.delete(id);
         return new ResponseEntity<>("Achievement "+ achievement.getName() + " successfully deleted", HttpStatus.OK);
     }
 
-    //TODO da li moram da pravim novu tabelu da povezujem Achievement i Game,
-    // da li mogu da kada pravim Achievement i da dodam Game, da ne dodajem posle
-    // exception error moram da uradim
+
 }

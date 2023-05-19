@@ -9,14 +9,14 @@ import java.util.Optional;
 
 public interface GameService {
 
-    public Game createGame(Game game);
-    public List<Game> getAllGame();
-    public Optional<Game> getGame(Long id);
-    public Game update (Game game);
-    public void delete (Long id);
-    public boolean existsByName (String name);
-    public boolean existsById (Long id);
-    public Game save (Game game);
-    public Optional<Game> findById(Long id);
+     Game createGame(Game game);
+     List<Game> getAllGame();
+     Game getGame(Long id);
+     Game update (Game game);
+     void delete (Long id);
+     boolean existsByName (String name);
+     boolean existsById (Long id);
+     Game save (Game game);
+     Game findById(Long id);
 
 }
