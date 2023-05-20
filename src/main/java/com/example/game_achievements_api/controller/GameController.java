@@ -1,6 +1,6 @@
 package com.example.game_achievements_api.controller;
 
-import com.example.game_achievements_api.exceptions.ApiError;
+
 import com.example.game_achievements_api.model.Achievement;
 import com.example.game_achievements_api.model.Game;
 import com.example.game_achievements_api.service.impl.AchievementServiceImpl;
@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+
 
 @RestController
 @RequestMapping("api/v1/game")
@@ -61,20 +61,19 @@ public class GameController {
     }
 
 
-    @GetMapping ("{id}/achievements")
+    @GetMapping ("/achievements/{id}")
     public ResponseEntity <List<Achievement>> findAllAchievenetsByGame(@PathVariable Long id){
         List<Achievement> achievementsList = achievementService.findAllByGame_Id(id);
         return new ResponseEntity<>(achievementsList, HttpStatus.OK);
     }
 
 
-    @PutMapping("/{id}") // ovo nije dobro jer vec imam id u Game u @RequestBody
-    public  ResponseEntity<Game> updateGame(@PathVariable long id, @Valid @RequestBody Game game){
+    @PutMapping
+    public  ResponseEntity<Game> updateGame( @Valid @RequestBody Game game){
 
         try {
-            Game gamefound = gameService.getGame(id);
+            Game gamefound = gameService.getGame(game.getId());
 
-            gamefound.setId(id);
             gamefound.setName(game.getName());
             gameService.update(game);
             return new ResponseEntity<>(gamefound, HttpStatus.OK);
